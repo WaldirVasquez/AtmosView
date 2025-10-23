@@ -14,6 +14,13 @@
 
 <body>
 
+    <!-- Loader Animation -->
+    <div id="loader">
+        <div class="loader"></div>
+    </div>
+
+
+
     <header class="navbar">
         <div class="nav-container">
             <h1 class="logo">AtmosView</h1>
@@ -48,7 +55,7 @@
             <a href="https://instagram.com/" class="instagram" target="_blank">
                 <i class="fab fa-instagram"></i>
             </a>
-            <a href="https://facebook.com/" class="facebook" target="_blank">
+            <a href="https://www.facebook.com/share/1Sktope52N/" class="facebook" target="_blank">
                 <i class="fab fa-facebook"></i>
             </a>
             <a href="https://github.com/WaldirVasquez" class="github" target="_blank">

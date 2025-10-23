@@ -19,6 +19,71 @@ main {
     /* ocupa el espacio libre entre header y footer */
 }
 
+
+/* === Fondo del loader === */
+#loader {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #0a1628 0%, #1b263b 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    transition: opacity 1s ease;
+}
+
+/* === Loader circular minimal === */
+.loader {
+    width: 80px;
+    height: 40px;
+    border-radius: 100px 100px 0 0;
+    position: relative;
+    overflow: hidden;
+    transform-origin: center bottom;
+}
+
+/* Animación tipo rotación planeta-sol-luna */
+.loader::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -100%;
+    background:
+        radial-gradient(farthest-side, #f5c542 80%, #0000) left 70% top 20% / 15px 15px,
+        /* sol */
+        radial-gradient(farthest-side, #020308 92%, #0000) left 65% bottom 19% / 12px 12px,
+        /* luna oscura */
+        radial-gradient(farthest-side, #b0e3ff 92%, #0000) left 70% bottom 20% / 15px 15px,
+        /* luna brillante */
+        linear-gradient(#9eddfe 50%, #020308 0);
+    background-repeat: no-repeat;
+    animation: orbit 2s infinite linear;
+}
+
+/* === Animación === */
+@keyframes orbit {
+
+    0%,
+    20% {
+        transform: rotate(0deg);
+    }
+
+    40%,
+    60% {
+        transform: rotate(180deg);
+    }
+
+    80%,
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* === Desaparición del loader === */
+.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* ==== Navbar ==== */
 .navbar {
     background: rgba(10, 22, 40, 0.95);
