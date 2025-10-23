@@ -11,9 +11,6 @@ use App\Http\Controllers\{
     EspacioController
 };
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/radar', [RadarController::class, 'index'])->name('radar');
-Route::get('/noticias', [NoticiasController::class, 'index'])->name('noticias');
-Route::get('/registro', [RegistroController::class, 'index'])->name('registro');
-Route::get('/espacio', [EspacioController::class, 'index'])->name('espacio');
-
+Route::get('/', function () {
+    return view('home');
+})->name('home');
