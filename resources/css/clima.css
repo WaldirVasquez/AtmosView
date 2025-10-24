@@ -1,0 +1,436 @@
+/* === RESET Y BASE === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-page);
+    min-height: 100vh;
+    padding: 20px;
+    color: var(--text-color);
+    transition: background 0.3s, color 0.3s;
+}
+
+/* === VARIABLES DE COLOR === */
+:root {
+    --bg-page: linear-gradient(135deg, #f5f5f5 0%, #eaeaea 100%);
+    --bg-card: rgba(255, 255, 255, 0.75);
+    --text-color: #111;
+    --accent: #2563eb;
+    --secondary: #4b5563;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-page: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        --bg-card: rgba(45, 45, 45, 0.65);
+        --text-color: #f9fafb;
+        --accent: #3b82f6;
+        --secondary: #9ca3af;
+    }
+}
+
+
+/* === CONTENEDOR GENERAL === */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* centra horizontalmente */
+    width: 100%;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    margin-top: 145px; /* deja espacio bajo el header */
+
+}
+
+
+/* === BUSCADOR === */
+.weather-search {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0 2rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.city-input {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #93c5fd;
+    width: 240px;
+    font-size: 1rem;
+    outline: none;
+    background-color: var(--bg-card);
+    color: var(--text-color);
+    transition: 0.3s;
+}
+
+.weather-search button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.weather-search button:hover {
+    opacity: 0.9;
+}
+
+.weather-search button#geoBtn {
+    background: #10b981;
+}
+
+.weather-search button#geoBtn:hover {
+    background: #059669;
+}
+
+/* === TARJETA PRINCIPAL === */
+.weather-card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15),
+        0 10px 10px -5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column; /* antes era wrap horizontal */
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+    max-width: 800px; /* no se pasa del viewport */
+    margin: 0 auto;
+    overflow: hidden;
+    transition: background 0.3s;
+}
+.variations-section,
+.forecast-hourly-section {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* === HEADER === */
+.header {
+    flex: 1;
+    min-width: 350px;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+/* === TÍTULO DE UBICACIÓN === */
+.location-info h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-color); /* se adapta automático */
+  margin-bottom: 8px;
+  transition: color 0.3s ease;
+}
+
+
+.time-badge,
+.description-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+}
+
+.time-badge {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--secondary);
+}
+
+.description-badge {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.weather-main {
+    text-align: center;
+}
+
+.weather-icon {
+    font-size: 5rem;
+    margin-bottom: 16px;
+}
+
+.temperature {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
+
+.condition {
+    font-size: 1.25rem;
+    color: var(--secondary);
+}
+
+/* === DETALLES === */
+.details-grid {
+    flex: 1;
+    min-width: 300px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 30px;
+}
+
+.detail-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.detail-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.detail-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+}
+
+.detail-label {
+    font-size: 0.875rem;
+    color: var(--secondary);
+    margin-bottom: 8px;
+}
+
+.detail-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+/* === VARIACIONES === */
+.variations-section {
+    width: 100%;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 24px;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    flex-wrap: wrap;
+}
+
+.tab {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: var(--secondary);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+}
+
+.variation-content {
+    display: none;
+}
+
+.variation-content.active {
+    display: block;
+}
+
+.variation-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.temperature-progress {
+    background: linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+.wind-progress {
+    background: linear-gradient(90deg, #86efac 0%, #22c55e 100%);
+}
+
+.precipitation-progress {
+    background: linear-gradient(90deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+/* === PRONÓSTICO POR HORA === */
+.forecast-hourly-section {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    width: 100%;
+}
+
+.forecast-hourly-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: thin;
+}
+
+.forecast-hourly-grid {
+    display: flex;
+    gap: 12px;
+    min-width: max-content;
+    padding-bottom: 8px;
+}
+
+.hour-item {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    width: 85px;
+    /* antes 70px, da más aire */
+    word-wrap: break-word;
+    white-space: normal;
+    /* permite salto si es necesario */
+    padding: 10px 8px;
+}
+
+.hour-extra {
+    font-size: 0.72rem;
+    color: var(--secondary);
+    line-height: 1.1;
+    display: block;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.hour-item:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.hour-label {
+    font-size: 0.8rem;
+    color: var(--secondary);
+}
+
+.hour-icon {
+    font-size: 1.8rem;
+    margin: 4px 0;
+}
+
+.hour-temp {
+    font-weight: bold;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.hour-extra {
+    font-size: 0.7rem;
+    color: var(--secondary);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+    .weather-card {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .details-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        padding: 20px;
+    }
+
+    .tabs {
+        justify-content: center;
+    }
+
+    .variation-item {
+        flex-direction: row;
+    }
+
+    .temperature {
+        font-size: 2.5rem;
+    }
+
+    .weather-icon {
+        font-size: 4rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .city-input {
+        width: 100%;
+    }
+
+    .header {
+        padding: 20px;
+    }
+
+    .forecast-hourly-section {
+        padding: 15px;
+    }
+
+    .variation-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .progress-bar {
+        width: 100%;
+    }
+
+    .value-label {
+        text-align: left;
+    }
+}
+
+/* === CORRIGE SUPERPOSICIÓN DEL HEADER === */

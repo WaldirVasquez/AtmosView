@@ -1,7 +1,12 @@
 /* ===== RESET ===== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-html, body {
+html,
+body {
     height: 100%;
 }
 
@@ -54,9 +59,21 @@ body {
 
 /* Animación del giro */
 @keyframes orbit {
-    0%, 20% { transform: rotate(0deg); }
-    40%, 60% { transform: rotate(180deg); }
-    80%, 100% { transform: rotate(360deg); }
+
+    0%,
+    20% {
+        transform: rotate(0deg);
+    }
+
+    40%,
+    60% {
+        transform: rotate(180deg);
+    }
+
+    80%,
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 
@@ -88,7 +105,8 @@ body {
 
 /* ===== MODO OSCURO ===== */
 .dark-mode {
-    background: #121212; /* negro elegante */
+    background: #121212;
+    /* negro elegante */
     color: #f4f7fb;
 }
 
@@ -104,7 +122,8 @@ body {
 
 /* ===== NAVBAR ===== */
 .navbar {
-    position: fixed;              /* fijo en la parte superior */
+    position: fixed;
+    /* fijo en la parte superior */
     top: 0;
     left: 0;
     width: 100%;
@@ -112,13 +131,16 @@ body {
     background: var(--nav-bg, #ffffff);
     transition: background 0.4s ease, backdrop-filter 0.4s ease;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    backdrop-filter: none;        /* sin blur hasta hacer scroll */
+    backdrop-filter: none;
+    /* sin blur hasta hacer scroll */
 }
 
 /* Cuando baja el scroll */
 .navbar.scrolled {
-    background: rgba(255, 255, 255, 0.85);  /* leve transparencia */
-    backdrop-filter: blur(8px);             /* efecto vidrio */
+    background: rgba(255, 255, 255, 0.85);
+    /* leve transparencia */
+    backdrop-filter: blur(8px);
+    /* efecto vidrio */
 }
 
 /* Ajuste para modo oscuro */
@@ -223,9 +245,11 @@ body {
 .menu-toggle.active span:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
 }
+
 .menu-toggle.active span:nth-child(2) {
     opacity: 0;
 }
+
 .menu-toggle.active span:nth-child(3) {
     transform: rotate(-45deg) translate(5px, -5px);
 }
@@ -244,7 +268,8 @@ body {
         height: 100vh;
         justify-content: flex-start;
         align-items: flex-start;
-        padding: 5rem 2rem; /* baja los links más y da espacio arriba */
+        padding: 5rem 2rem;
+        /* baja los links más y da espacio arriba */
         gap: 1.5rem;
         transition: right 0.35s ease-in-out;
         z-index: 9999;
@@ -257,7 +282,8 @@ body {
     .nav-menu a {
         width: 100%;
         text-decoration: none;
-        color: #ffffff !important; /* texto blanco para modo claro */
+        color: #ffffff !important;
+        /* texto blanco para modo claro */
         font-size: 1.1rem;
         display: flex;
         align-items: center;
@@ -297,10 +323,104 @@ body {
     }
 }
 
+/* ===== DROPDOWN (Submenú Noticias) ===== */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropbtn {
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 500;
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 120%;
+    left: 0;
+    min-width: 160px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    overflow: hidden;
+    z-index: 999;
+    transition: opacity 0.3s ease;
+}
+
+.dropdown-content.open {
+    display: block !important;
+}
+
+
+.dropdown-content a {
+    color: #222;
+    padding: 0.8rem 1rem;
+    text-decoration: none;
+    display: block;
+    transition: background 0.3s;
+}
+
+.dropdown-content a:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Mostrar submenú al pasar el mouse */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* ===== Soporte modo oscuro ===== */
+.dark-mode .dropdown-content {
+    background: rgba(27, 27, 27, 0.97);
+}
+
+.dark-mode .dropdown-content a {
+    color: #f1f1f1;
+}
+
+.dark-mode .dropdown-content a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .dropdown-content {
+        position: static;
+        background: transparent;
+        box-shadow: none;
+        border-radius: 0;
+        display: none;
+        width: 100%;
+        padding-left: 1rem;
+    }
+
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+
+    .dropdown-content a {
+        padding: 0.6rem 0;
+        color: #fff !important;
+    }
+
+    .dark-mode .dropdown-content a {
+        color: #fff !important;
+    }
+}
+
 
 /* ===== CONTENIDO PRINCIPAL ===== */
 .main-content {
-    flex: 1; /* Esto empuja el footer al fondo */
+    flex: 1;
+    /* Esto empuja el footer al fondo */
     padding: 2rem 1rem;
     display: flex;
     flex-direction: column;
@@ -309,17 +429,20 @@ body {
 }
 
 /* ===== FOOTER ===== */
-/* ===== FOOTER ===== */
 .footer {
     text-align: center;
     padding: 1.5rem 0;
+    width: 100vw; /* ocupa todo el ancho visible */
+    margin-left: calc(50% - 50vw); /* rompe el centrado del container */
+    box-sizing: border-box;
     transition: background 0.4s, color 0.4s;
 }
+
 
 .footer hr {
     margin: 0.5rem auto;
     width: 60%;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .social-icons {
@@ -344,11 +467,20 @@ body {
 }
 
 /* Colores oficiales */
-.social-icons a.facebook { background: #1877f2; }   /* Azul oficial Facebook */
-.social-icons a.instagram { 
+.social-icons a.facebook {
+    background: #1877f2;
+}
+
+/* Azul oficial Facebook */
+.social-icons a.instagram {
     background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
 }
-.social-icons a.github { background: #333333; }     /* Negro Github */
+
+.social-icons a.github {
+    background: #333333;
+}
+
+/* Negro Github */
 
 /* Hover efecto: se levantan y se aclaran */
 .social-icons a:hover {
