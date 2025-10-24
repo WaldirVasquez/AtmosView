@@ -10,10 +10,14 @@
 <div class="container">
     <!-- Buscador -->
     <div class="weather-search">
-        <input id="cityInput" type="text" placeholder="Buscar ciudad..." class="city-input">
+        <div class="search-wrapper">
+            <input id="cityInput" type="text" placeholder="Buscar ciudad..." class="city-input" autocomplete="off">
+            <div id="suggestions" class="suggestions-list"></div>
+        </div>
         <button id="searchBtn">Buscar</button>
         <button id="geoBtn" title="Usar mi ubicación actual">📍</button>
     </div>
+
 
 
     <div class="weather-card">
@@ -245,6 +249,13 @@
                 <div class="forecast-hourly-grid" id="hourlyForecast"></div>
             </div>
         </div>
+
+        <!-- Pronóstico diario -->
+        <section class="forecast-daily-section">
+            <h2 class="section-title">Pronóstico diario (7 días)</h2>
+            <div class="forecast-grid"></div>
+        </section>
+
 
     </div>
 </div>

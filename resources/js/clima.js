@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // === ICONOS Y DESCRIPCIONES ===
     const iconMap = {
         clearsky_day: "☀️",
         clearsky_night: "🌙",
@@ -18,25 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
         snow: "❄️",
     };
 
-    function normalizeSymbol(symbol) {
-    if (!symbol) return "cloudy";
-    // Eliminar sufijos no esperados (por ejemplo, "_polartwilight")
-    symbol = symbol.replace("_polartwilight", "");
-
-    // Si el símbolo tiene combinaciones (como "rainshowersandthunder_day")
-    if (symbol.includes("andthunder")) return "thunderstorm";
-    if (symbol.includes("heavyrainshowers")) return "heavyrain";
-    if (symbol.includes("rainshowers")) return "rainshowers_day";
-    if (symbol.includes("heavysnow")) return "snow";
-    if (symbol.includes("snowshowers")) return "snow";
-    if (symbol.includes("sleet")) return "sleet";
-    if (symbol.includes("fog")) return "fog";
-
-    // Dejar las versiones day/night correctas
-    return symbol;
-}
-
-
     const descMap = {
         clearsky_day: "Despejado",
         clearsky_night: "Despejado",
@@ -52,6 +34,20 @@ document.addEventListener("DOMContentLoaded", () => {
         snow: "Nieve",
     };
 
+    function normalizeSymbol(symbol) {
+        if (!symbol) return "cloudy";
+        symbol = symbol.replace("_polartwilight", "");
+        if (symbol.includes("andthunder")) return "thunderstorm";
+        if (symbol.includes("heavyrainshowers")) return "heavyrain";
+        if (symbol.includes("rainshowers")) return "rainshowers_day";
+        if (symbol.includes("heavysnow")) return "snow";
+        if (symbol.includes("snowshowers")) return "snow";
+        if (symbol.includes("sleet")) return "sleet";
+        if (symbol.includes("fog")) return "fog";
+        return symbol;
+    }
+
+    // === ELEMENTOS DOM ===
     const el = {
         city: document.querySelector(".location-info h1"),
         time: document.querySelector(".time-badge span:nth-child(2)"),
@@ -65,9 +61,22 @@ document.addEventListener("DOMContentLoaded", () => {
         forecast: document.querySelector(".forecast-grid"),
     };
 
+    const GEOAPIFY_KEY = "59efd1fba6de465194802ec4f0dcd34f";
+
+    // === NUEVO: CACHE LOCAL DE UBICACIÓN ===
+    let cachedLocation = null;
+    let lastFetchTime = 0;
+
+    // === FUNCIÓN PRINCIPAL DE CLIMA ===
     async function getWeather(lat, lon, name = "Ubicación actual") {
         const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${lat}&lon=${lon}`;
         const headers = { "User-Agent": "AtmosView/1.0 (ingeniero@tuapp.com)" };
+
+        // Si es la ubicación local y hay datos recientes (menos de 5 minutos), mostrar cacheado instantáneamente
+        if (name === "Tu ubicación 📍" && cachedLocation && Date.now() - lastFetchTime < 5 * 60 * 1000) {
+            console.log("⏩ Mostrando clima cacheado mientras se actualiza...");
+            renderWeather(cachedLocation);
+        }
 
         try {
             const res = await fetch(url, { headers });
@@ -85,24 +94,49 @@ document.addEventListener("DOMContentLoaded", () => {
             const precip =
                 current.next_1_hours?.details?.precipitation_amount ?? 0;
 
-            // Normalizar el símbolo para evitar claves no contempladas
             const normalizedSymbol = normalizeSymbol(currentSymbol);
+            const chosen =
+                iconMap[normalizedSymbol] || descMap[normalizedSymbol]
+                    ? normalizedSymbol
+                    : "cloudy";
 
-            // Elegir la mejor clave disponible para icon/desc
-            function chooseSymbolKey(sym) {
-                if (!sym) return "cloudy";
-                // Preferir la clave exacta
-                if (iconMap[sym] || descMap[sym]) return sym;
-                // Probar sin sufijos _day/_night y sin otros sufijos conocidos
-                const base = sym.replace(/_day|_night|_polartwilight/g, "");
-                if (iconMap[base] || descMap[base]) return base;
-                // Probar usando la normalización otra vez (por seguridad)
-                const rebase = normalizeSymbol(base);
-                if (iconMap[rebase] || descMap[rebase]) return rebase;
-                return "cloudy";
+            // === Detección automática de zona horaria confiable ===
+            let timeZone = "America/El_Salvador";
+            try {
+                const tzUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&apiKey=${GEOAPIFY_KEY}`;
+                const tzRes = await fetch(tzUrl);
+                const tzData = await tzRes.json();
+                const props = tzData?.features?.[0]?.properties || {};
+                if (props.timezone && props.timezone.name) {
+                    timeZone = props.timezone.name;
+                } else if (props.timezone_offset_sec) {
+                    const offsetHours = props.timezone_offset_sec / 3600;
+                    timeZone = `UTC${offsetHours >= 0 ? "+" : ""}${offsetHours}`;
+                }
+                console.log("Zona horaria detectada:", timeZone);
+            } catch (err) {
+                timeZone =
+                    Intl.DateTimeFormat().resolvedOptions().timeZone ||
+                    "America/El_Salvador";
+                console.warn("Usando zona local del navegador:", timeZone);
             }
 
-            const chosen = chooseSymbolKey(normalizedSymbol || currentSymbol);
+            // === GUARDAR EN CACHÉ ===
+            if (name === "Tu ubicación 📍") {
+                cachedLocation = {
+                    name,
+                    temp,
+                    humidity,
+                    wind,
+                    precip,
+                    icon: iconMap[chosen] || "🌡️",
+                    desc: descMap[chosen] || "Sin datos",
+                    series,
+                    timeZone,
+                };
+                lastFetchTime = Date.now();
+                console.log("✅ Clima cacheado actualizado.");
+            }
 
             renderWeather({
                 name,
@@ -113,12 +147,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 icon: iconMap[chosen] || "🌡️",
                 desc: descMap[chosen] || "Sin datos",
                 series,
+                timeZone,
             });
         } catch (err) {
             console.error("Error al cargar clima:", err);
         }
     }
 
+    // === FUNCIÓN DE RENDERIZADO ===
     function renderWeather({
         name,
         temp,
@@ -128,16 +164,16 @@ document.addEventListener("DOMContentLoaded", () => {
         icon,
         desc,
         series,
+        timeZone,
     }) {
-        const now = new Date();
-
-        // Datos actuales
         el.city.textContent = name;
-        el.time.textContent = now.toLocaleString("es-ES", {
+        el.time.textContent = new Date().toLocaleString("es-ES", {
+            timeZone: timeZone,
             weekday: "long",
             hour: "2-digit",
             minute: "2-digit",
         });
+
         el.desc.textContent = desc;
         el.temp.textContent = `${Math.round(temp)}°C`;
         el.condition.textContent = desc;
@@ -146,21 +182,16 @@ document.addEventListener("DOMContentLoaded", () => {
         el.wind.textContent = `${Math.round(wind)} km/h`;
         el.icon.textContent = icon;
 
-        // === Variación Horaria Dinámica ===
+        // === VARIACIONES ===
         const hourlyTemp = document.getElementById("temperature");
         const hourlyWind = document.getElementById("wind");
         const hourlyPrecip = document.getElementById("precipitation");
 
-        
-
-        // Limpiar anteriores
         hourlyTemp.innerHTML = "";
         hourlyWind.innerHTML = "";
         hourlyPrecip.innerHTML = "";
 
-        // Filtrar solo las próximas 7 horas
         const nextHours = series.slice(0, 7);
-
         let tempMin = Infinity,
             tempMax = -Infinity;
         nextHours.forEach((e) => {
@@ -169,342 +200,340 @@ document.addEventListener("DOMContentLoaded", () => {
             if (t > tempMax) tempMax = t;
         });
 
-        // === Temperatura ===
         hourlyTemp.innerHTML += `
             <div class="variation-header">
                 <span class="variation-title">Variación de temperatura</span>
-                    <span class="variation-range">${Math.round(
-                        tempMax
-                    )}° / ${Math.round(tempMin)}°</span>
+                <span class="variation-range">${Math.round(tempMax)}° / ${Math.round(tempMin)}°</span>
             </div>`;
 
         nextHours.forEach((e) => {
             const d = new Date(e.time);
             const hour = d.toLocaleTimeString("es-ES", {
+                timeZone: timeZone,
                 hour: "2-digit",
                 minute: "2-digit",
             });
             const t = e.data.instant.details.air_temperature;
             const percent = ((t - tempMin) / (tempMax - tempMin)) * 100;
             hourlyTemp.innerHTML += `
-        <div class="variation-item">
-            <span class="time-label">${hour}</span>
-            <div class="progress-bar">
-                <div class="progress-fill temperature-progress" style="width:${percent}%"></div>
-            </div>
-            <span class="value-label">${Math.round(t)}°</span>
-        </div>`;
+                <div class="variation-item">
+                    <span class="time-label">${hour}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill temperature-progress" style="width:${percent}%"></div>
+                    </div>
+                    <span class="value-label">${Math.round(t)}°</span>
+                </div>`;
         });
 
         // === Viento ===
-        // === Viento ===
-        hourlyWind.innerHTML += `
-        <div class="variation-header">
-            <span class="variation-title">Variación de viento</span>
-        </div>`;
-
+        hourlyWind.innerHTML += `<div class="variation-header"><span class="variation-title">Variación de viento</span></div>`;
         nextHours.forEach((e) => {
             const d = new Date(e.time);
             const hour = d.toLocaleTimeString("es-ES", {
+                timeZone: timeZone,
                 hour: "2-digit",
                 minute: "2-digit",
             });
-
-            const w = e.data.instant.details.wind_speed; // km/h
-            const deg = e.data.instant.details.wind_from_direction; // grados (0-360)
-            const percent = Math.min((w / 15) * 100, 100); // escala hasta 15 km/h
-
-            // convertir dirección a flecha
+            const w = e.data.instant.details.wind_speed;
+            const deg = e.data.instant.details.wind_from_direction;
+            const percent = Math.min((w / 15) * 100, 100);
             const dir = getWindArrow(deg);
-
             hourlyWind.innerHTML += `
-        <div class="variation-item">
-            <span class="time-label">${hour}</span>
-            <div class="progress-bar">
-                <div class="progress-fill wind-progress" style="width:${percent}%"></div>
-            </div>
-            <span class="value-label">${w.toFixed(1)} km/h ${dir}</span>
-        </div>`;
+                <div class="variation-item">
+                    <span class="time-label">${hour}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill wind-progress" style="width:${percent}%"></div>
+                    </div>
+                    <span class="value-label">${w.toFixed(1)} km/h ${dir}</span>
+                </div>`;
         });
 
         // === Precipitación ===
-        hourlyPrecip.innerHTML += `
-        <div class="variation-header">
-            <span class="variation-title">Probabilidad de precipitación</span>
-        </div>`;
-
+        hourlyPrecip.innerHTML += `<div class="variation-header"><span class="variation-title">Probabilidad de precipitación</span></div>`;
         nextHours.forEach((e) => {
             const d = new Date(e.time);
             const hour = d.toLocaleTimeString("es-ES", {
+                timeZone: timeZone,
                 hour: "2-digit",
                 minute: "2-digit",
             });
             const p = e.data.next_1_hours?.details?.precipitation_amount ?? 0;
-            const percent = Math.min((p / 10) * 100, 100); // escala hasta 10mm
+            const percent = Math.min((p / 10) * 100, 100);
             hourlyPrecip.innerHTML += `
-        <div class="variation-item">
-            <span class="time-label">${hour}</span>
-            <div class="progress-bar">
-                <div class="progress-fill precipitation-progress" style="width:${percent}%"></div>
-            </div>
-            <span class="value-label">${p.toFixed(1)} mm</span>
-        </div>`;
+                <div class="variation-item">
+                    <span class="time-label">${hour}</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill precipitation-progress" style="width:${percent}%"></div>
+                    </div>
+                    <span class="value-label">${p.toFixed(1)} mm</span>
+                </div>`;
         });
 
-        // === Pronóstico por hora (solo el día actual) ===
-const hourlyContainer = document.getElementById("hourlyForecast");
-const hourlyTitle = document.getElementById("hourlyTitle");
+        function getWindArrow(deg) {
+            if (deg >= 337.5 || deg < 22.5) return "↑";
+            if (deg >= 22.5 && deg < 67.5) return "↗";
+            if (deg >= 67.5 && deg < 112.5) return "→";
+            if (deg >= 112.5 && deg < 157.5) return "↘";
+            if (deg >= 157.5 && deg < 202.5) return "↓";
+            if (deg >= 202.5 && deg < 247.5) return "↙";
+            if (deg >= 247.5 && deg < 292.5) return "←";
+            if (deg >= 292.5 && deg < 337.5) return "↖";
+            return "·";
+        }
 
-if (hourlyContainer) {
-    const now = new Date();
-    const currentDay = now.getDate();
-    const currentDayName = now.toLocaleDateString("es-ES", { weekday: "long" });
+        // === PRONÓSTICO POR HORA === (ya bien con zona local)
+        const hourlyContainer = document.getElementById("hourlyForecast");
+        const hourlyTitle = document.getElementById("hourlyTitle");
 
-    // Encabezado del día
-    hourlyTitle.textContent = `Pronóstico por hora — ${currentDayName.charAt(0).toUpperCase() + currentDayName.slice(1)}`;
+        if (hourlyContainer) {
+            const now = new Date();
+            const nowLocal = new Date(now.toLocaleString("en-US", { timeZone }));
+            const currentDay = nowLocal.getDate();
+            const currentDayName = nowLocal.toLocaleDateString("es-ES", {
+                weekday: "long",
+            });
 
-    hourlyContainer.innerHTML = "";
+            hourlyTitle.textContent = `Pronóstico por hora — ${
+                currentDayName.charAt(0).toUpperCase() +
+                currentDayName.slice(1)
+            }`;
+            hourlyContainer.innerHTML = "";
 
-    // Filtramos SOLO las horas del día actual
-    const todayHours = series.filter(entry => {
-        const d = new Date(entry.time);
-        return d.getDate() === currentDay;
-    });
+            const todayHours = series.filter((entry) => {
+                const utc = new Date(entry.time);
+                const local = new Date(utc.toLocaleString("en-US", { timeZone }));
+                return local.getDate() === currentDay;
+            });
 
-    todayHours.forEach(entry => {
-        const d = new Date(entry.time);
-        const hour = d.toLocaleTimeString("es-ES", { hour: "numeric", hour12: true });
-        const details = entry.data.instant.details;
+            todayHours.forEach((entry) => {
+                const d = new Date(entry.time);
+                const hour = d.toLocaleTimeString("es-ES", {
+                    timeZone: timeZone,
+                    hour: "numeric",
+                    hour12: true,
+                });
+                const details = entry.data.instant.details;
+                const symbol =
+                    normalizeSymbol(entry.data.next_1_hours?.summary?.symbol_code) ||
+                    "cloudy";
+                const icon = iconMap[symbol] || "🌡️";
+                const temp = Math.round(details.air_temperature);
+                const wind = Math.round(details.wind_speed);
+                const rain =
+                    entry.data.next_1_hours?.details?.precipitation_amount ?? 0;
 
-        const symbol = normalizeSymbol(entry.data.next_1_hours?.summary?.symbol_code) || "cloudy";
-        const icon = iconMap[symbol] || "🌡️";
-        const temp = Math.round(details.air_temperature);
-        const wind = Math.round(details.wind_speed);
-        const rain = entry.data.next_1_hours?.details?.precipitation_amount ?? 0;
+                hourlyContainer.innerHTML += `
+                    <div class="hour-item">
+                        <div class="hour-label">${hour}</div>
+                        <div class="hour-icon">${icon}</div>
+                        <div class="hour-temp">${temp}°</div>
+                        <div class="hour-extra">
+                            <span>${wind} km/h</span> | <span>${rain.toFixed(
+                    1
+                )} mm</span>
+                        </div>
+                    </div>`;
+            });
 
-        hourlyContainer.innerHTML += `
-            <div class="hour-item">
-                <div class="hour-label">${hour}</div>
-                <div class="hour-icon">${icon}</div>
-                <div class="hour-temp">${temp}°</div>
-                <div class="hour-extra">
-                    <span>${wind} km/h</span> | <span>${rain.toFixed(1)} mm</span>
-                </div>
-            </div>`;
-    });
+            if (todayHours.length === 0) {
+                hourlyContainer.innerHTML = `<p class="no-data">No hay datos disponibles para este día ⏳</p>`;
+            }
+        }
 
-    // Si no hay datos (por ejemplo, a las 23:59 del día), muestra aviso
-    if (todayHours.length === 0) {
-        hourlyContainer.innerHTML = `<p class="no-data">No hay datos disponibles para este día ⏳</p>`;
-    }
-}
-
-
-
-        // === Pronóstico diario (7 días desde mañana) ===
+        // === PRONÓSTICO DIARIO (7 DÍAS) ===
         el.forecast.innerHTML = "";
+        const nowLocal = new Date(new Date().toLocaleString("en-US", { timeZone }));
+        const currentDay = nowLocal.getDate();
         let addedDays = 0;
+        let lastDaySeen = null;
+
         for (let i = 0; i < series.length && addedDays < 7; i++) {
             const entry = series[i];
             const entryDate = new Date(entry.time);
+            const localEntry = new Date(
+                entryDate.toLocaleString("en-US", { timeZone })
+            );
 
-            // Saltar las horas de hoy
-            if (entryDate.getDate() === now.getDate()) continue;
+            const dayNum = localEntry.getDate();
+            if (dayNum === currentDay) continue;
 
-            // Tomar solo una lectura por día (alrededor de las 12:00)
-            if (entryDate.getHours() === 12) {
-                const day = entryDate.toLocaleDateString("es-ES", {
+            if (dayNum !== lastDaySeen) {
+                lastDaySeen = dayNum;
+                const day = localEntry.toLocaleDateString("es-ES", {
                     weekday: "short",
                 });
                 const forecastSymbol =
-                    entry.data.next_6_hours?.summary?.symbol_code || "cloudy";
-                const fIcon = iconMap[forecastSymbol] || "🌡️";
+                    entry.data.next_6_hours?.summary?.symbol_code ||
+                    entry.data.next_12_hours?.summary?.symbol_code ||
+                    "cloudy";
+                const fIcon = iconMap[normalizeSymbol(forecastSymbol)] || "🌡️";
                 const fTemp = Math.round(
                     entry.data.instant.details.air_temperature
                 );
 
                 el.forecast.innerHTML += `
-                    <div class="forecast-item">
-                        <div class="forecast-day">${day}</div>
-                        <div class="forecast-icon">${fIcon}</div>
-                        <div class="forecast-temp">${fTemp}°</div>
-                        <div class="forecast-low">-</div>
-                    </div>`;
+            <div class="forecast-item">
+                <div class="forecast-day">${day}</div>
+                <div class="forecast-icon">${fIcon}</div>
+                <div class="forecast-temp">${fTemp}°</div>
+            </div>`;
+
                 addedDays++;
             }
         }
-
-        function getWindArrow(deg) {
-            if (deg >= 337.5 || deg < 22.5) return "↑"; // Norte
-            if (deg >= 22.5 && deg < 67.5) return "↗"; // NE
-            if (deg >= 67.5 && deg < 112.5) return "→"; // Este
-            if (deg >= 112.5 && deg < 157.5) return "↘"; // SE
-            if (deg >= 157.5 && deg < 202.5) return "↓"; // Sur
-            if (deg >= 202.5 && deg < 247.5) return "↙"; // SO
-            if (deg >= 247.5 && deg < 292.5) return "←"; // Oeste
-            if (deg >= 292.5 && deg < 337.5) return "↖"; // NO
-            return "·";
-        }
     }
 
-// === Buscar ciudad con GEOAPIFY (prioriza El Salvador y muestra hora local real) ===
-const GEOAPIFY_KEY = "59efd1fba6de465194802ec4f0dcd34f";
+    // === AUTOCOMPLETADO GEOAPIFY ===
+    const input = document.getElementById("cityInput");
+    const suggestions = document.getElementById("suggestions");
 
-document.getElementById("searchBtn").addEventListener("click", async () => {
-    const query = document.getElementById("cityInput").value.trim();
-    if (!query) return alert("Escribe una ciudad, municipio o país 🌍");
-
-    try {
-        const lowerQuery = query.toLowerCase();
-        const knownCountries = [
-            "españa", "francia", "alemania", "méxico", "argentina", "chile",
-            "colombia", "perú", "guatemala", "honduras", "nicaragua", "panamá",
-            "canadá", "eeuu", "estados unidos", "brasil", "italia", "japón", "china"
-        ];
-
-        const isGlobalSearch = knownCountries.some(c => lowerQuery.includes(c));
-        const biasParam = isGlobalSearch ? "" : "&bias=countrycode:sv"; // Prioriza El Salvador 🇸🇻
-
-        // === Llamada a Geoapify ===
-        const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&lang=es${biasParam}&limit=1&format=json&apiKey=${GEOAPIFY_KEY}`;
-        const res = await fetch(geoUrl);
-        const data = await res.json();
-
-        console.log("Geoapify resultado:", data); // 👀 Debug
-
-        if (!data || !data.results || data.results.length === 0)
-            return alert("No se encontró la ubicación 😕");
-
-        // Tomar el primer resultado
-        const loc = data.results[0];
-        const lat = loc.lat;
-        const lon = loc.lon;
-
-        if (!lat || !lon) {
-            console.error("Sin coordenadas válidas:", loc);
-            return alert("No se pudieron obtener coordenadas válidas ❌");
+    input.addEventListener("input", async () => {
+        const query = input.value.trim();
+        if (query.length < 3) {
+            suggestions.innerHTML = "";
+            return;
         }
 
-        // Nombre amigable
-        const placeName = [
-            loc.city || loc.town || loc.village || loc.suburb || loc.name,
-            loc.state || loc.county,
-            loc.country
-        ].filter(Boolean).join(", ");
+        const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
+            query
+        )}&lang=es&limit=5&apiKey=${GEOAPIFY_KEY}`;
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+            suggestions.innerHTML = "";
 
-        // === Obtener hora local exacta ===
-        const tzUrl = `https://api.geoapify.com/v1/timezone?lat=${lat}&lon=${lon}&apiKey=${GEOAPIFY_KEY}`;
-        const tzRes = await fetch(tzUrl);
-        const tzData = await tzRes.json();
+            data.features.forEach((f) => {
+                const p = f.properties;
+                const name =
+                    p.city ||
+                    p.town ||
+                    p.village ||
+                    p.name ||
+                    "Lugar sin nombre";
+                const country = p.country || "";
+                const lat = p.lat;
+                const lon = p.lon;
+                const flag = p.country_code
+                    ? `<img src="https://flagcdn.com/24x18/${p.country_code.toLowerCase()}.png" alt="${country}">`
+                    : "";
 
-        if (!tzData || !tzData.timezone || !tzData.timezone.name) {
-            console.warn("No se encontró zona horaria, se usará local");
+                const item = document.createElement("div");
+                item.className = "suggestion-item";
+                item.innerHTML = `${flag}<span>${name}, ${country}</span>`;
+                item.addEventListener("click", () => {
+                    input.value = `${name}, ${country}`;
+                    suggestions.innerHTML = "";
+                    getWeather(lat, lon, `${name}, ${country}`);
+                    window.lastCoords = {
+                        lat,
+                        lon,
+                        name: `${name}, ${country}`,
+                    };
+                });
+                suggestions.appendChild(item);
+            });
+        } catch (err) {
+            console.error("Error en autocompletado:", err);
+        }
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".search-wrapper")) suggestions.innerHTML = "";
+    });
+
+    // === BOTÓN DE BÚSQUEDA (funciona con o sin sugerencias) ===
+    document.getElementById("searchBtn").addEventListener("click", async () => {
+        const query = document.getElementById("cityInput").value.trim();
+        if (!query) return alert("Escribe una ciudad, municipio o país 🌍");
+
+        if (
+            window.lastCoords &&
+            window.lastCoords.name.toLowerCase().includes(query.toLowerCase())
+        ) {
+            const { lat, lon, name } = window.lastCoords;
+            getWeather(lat, lon, name);
+            return;
         }
 
-        const tz = tzData?.timezone?.name || "America/El_Salvador";
-        const localTime = new Date().toLocaleString("es-ES", {
-            timeZone: tz,
-            weekday: "long",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+        try {
+            const geoUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(
+                query
+            )}&lang=es&limit=1&apiKey=${GEOAPIFY_KEY}`;
+            const res = await fetch(geoUrl);
+            const data = await res.json();
 
-        // Mostrar hora local
-        const badge = document.querySelector(".time-badge span:nth-child(2)");
-        if (badge) badge.textContent = `${localTime} (${tz})`;
+            if (!data || !data.results || data.results.length === 0)
+                return alert("No se encontró la ubicación 😕");
 
-        // === Cargar el clima ===
-        getWeather(lat, lon, placeName);
-        window.lastCoords = { lat, lon, name: placeName };
+            const loc = data.results[0];
+            const lat = loc.lat;
+            const lon = loc.lon;
+            const placeName = [
+                loc.city || loc.town || loc.village || loc.name,
+                loc.state || loc.county,
+                loc.country,
+            ]
+                .filter(Boolean)
+                .join(", ");
 
-    } catch (err) {
-        console.error("Error al buscar ubicación:", err);
-        alert("Error al buscar ubicación ❌");
+            window.lastCoords = { lat, lon, name: placeName };
+            getWeather(lat, lon, placeName);
+        } catch (err) {
+            console.error("Error al buscar ubicación:", err);
+            alert("Error al buscar ubicación ❌");
+        }
+    });
+
+    // === GEOLOCALIZACIÓN ===
+    document.getElementById("geoBtn").addEventListener("click", () => {
+        if (!navigator.geolocation)
+            return alert("Tu navegador no soporta geolocalización ❌");
+
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                getWeather(
+                    pos.coords.latitude,
+                    pos.coords.longitude,
+                    "Tu ubicación 📍"
+                );
+            },
+            (err) => {
+                console.warn("Error de geolocalización:", err);
+                alert("No se pudo obtener tu ubicación. Activa el GPS 🌎");
+            },
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+        );
+    });
+
+    // === CARGA INICIAL ===
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (p) => {
+                getWeather(
+                    p.coords.latitude,
+                    p.coords.longitude,
+                    "Tu ubicación 📍"
+                );
+            },
+            () => {},
+            { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+        );
     }
-});
 
-
-// --- Botón para usar mi ubicación ---
-document.getElementById("geoBtn").addEventListener("click", () => {
-    if (!navigator.geolocation)
-        return alert("Tu navegador no soporta geolocalización ❌");
-
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            getWeather(pos.coords.latitude, pos.coords.longitude, "Tu ubicación 📍");
-        },
-        (err) => {
-            console.warn("Error de geolocalización:", err);
-            alert("No se pudo obtener tu ubicación. Activa el GPS o permite el acceso 🌎");
-        },
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
-    );
-});
-
-// --- Cargar clima inicial ---
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        (p) => {
-            getWeather(p.coords.latitude, p.coords.longitude, "Tu ubicación 📍");
-        },
-        (err) => {
-            console.warn("No se pudo obtener geolocalización:", err);
-            alert("Activa la ubicación para ver el clima de tu zona 🌎");
-        },
-        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
-    );
-} else {
-    alert("Tu navegador no soporta geolocalización ❌");
-}
-
-
-    // === Control de pestañas (usa los onclick del HTML) ===
+    // === CONTROL DE PESTAÑAS ===
     window.showTab = function (tabName) {
-        // Ocultar todos los contenidos
         document
             .querySelectorAll(".variation-content")
             .forEach((el) => el.classList.remove("active"));
-        // Quitar 'active' de los botones
         document
             .querySelectorAll(".tab")
             .forEach((btn) => btn.classList.remove("active"));
-
-        // Mostrar la sección seleccionada
         const target = document.getElementById(tabName);
         if (target) target.classList.add("active");
-
-        // Activar el botón correspondiente
         const activeBtn = Array.from(document.querySelectorAll(".tab")).find(
             (btn) =>
                 btn.textContent.toLowerCase().includes(tabName.toLowerCase())
         );
         if (activeBtn) activeBtn.classList.add("active");
     };
-
-    // --- Actualiza el día en el encabezado cada minuto ---
-setInterval(() => {
-    const now = new Date();
-    const day = now.toLocaleDateString("es-ES", { weekday: "long" });
-    const title = document.getElementById("hourlyTitle");
-    if (title)
-        title.textContent = `Pronóstico por hora — ${day.charAt(0).toUpperCase() + day.slice(1)}`;
-}, 60000);
-
-// --- Recarga automática al cambiar de día ---
-let lastDay = new Date().getDate();
-
-setInterval(() => {
-    const now = new Date();
-    const currentDay = now.getDate();
-
-    if (currentDay !== lastDay) {
-        // Día nuevo → recargamos el clima
-        if (window.lastCoords) {
-            getWeather(window.lastCoords.lat, window.lastCoords.lon, window.lastCoords.name || "Tu ubicación");
-        }
-        lastDay = currentDay;
-    }
-}, 60000); // Verifica cada minuto
-
-
 });

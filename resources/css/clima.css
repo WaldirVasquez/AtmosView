@@ -33,7 +33,6 @@ body {
     }
 }
 
-
 /* === CONTENEDOR GENERAL === */
 .container {
     max-width: 1200px;
@@ -41,15 +40,13 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center; /* centra horizontalmente */
+    justify-content: center;
     width: 100%;
     padding: 0 1rem;
     box-sizing: border-box;
     transition: all 0.3s ease;
-    margin-top: 145px; /* deja espacio bajo el header */
-
+    margin-top: 145px;
 }
-
 
 /* === BUSCADOR === */
 .weather-search {
@@ -61,11 +58,17 @@ body {
     flex-wrap: wrap;
 }
 
+/* 🔍 NUEVO: Wrapper para autocompletado */
+.search-wrapper {
+    position: relative;
+    width: 240px;
+}
+
 .city-input {
     padding: 0.6rem 1rem;
     border-radius: 8px;
     border: 1px solid #93c5fd;
-    width: 240px;
+    width: 100%;
     font-size: 1rem;
     outline: none;
     background-color: var(--bg-card);
@@ -96,6 +99,44 @@ body {
     background: #059669;
 }
 
+/* 🌍 NUEVO: Estilos para la lista de sugerencias */
+.suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid rgba(147, 197, 253, 0.7);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 9999;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(6px);
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s ease;
+}
+
+.suggestion-item:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* Bandera opcional si se agrega 🇸🇻 */
+.suggestion-item img {
+    width: 18px;
+    height: 12px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
 /* === TARJETA PRINCIPAL === */
 .weather-card {
     background: var(--bg-card);
@@ -103,15 +144,16 @@ body {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15),
         0 10px 10px -5px rgba(0, 0, 0, 0.05);
     display: flex;
-    flex-direction: column; /* antes era wrap horizontal */
+    flex-direction: column;
     justify-content: center;
     align-items: stretch;
     width: 100%;
-    max-width: 800px; /* no se pasa del viewport */
+    max-width: 800px;
     margin: 0 auto;
     overflow: hidden;
     transition: background 0.3s;
 }
+
 .variations-section,
 .forecast-hourly-section {
     width: 100%;
@@ -132,13 +174,12 @@ body {
 
 /* === TÍTULO DE UBICACIÓN === */
 .location-info h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  color: var(--text-color); /* se adapta automático */
-  margin-bottom: 8px;
-  transition: color 0.3s ease;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 8px;
+    transition: color 0.3s ease;
 }
-
 
 .time-badge,
 .description-badge {
@@ -328,10 +369,8 @@ body {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
     width: 85px;
-    /* antes 70px, da más aire */
     word-wrap: break-word;
     white-space: normal;
-    /* permite salto si es necesario */
     padding: 10px 8px;
 }
 
@@ -404,6 +443,10 @@ body {
     .weather-icon {
         font-size: 4rem;
     }
+
+    .search-wrapper {
+        width: 100%;
+    }
 }
 
 @media (max-width: 600px) {
@@ -431,6 +474,67 @@ body {
     .value-label {
         text-align: left;
     }
+
+    .suggestions-list {
+        max-height: 150px;
+        font-size: 0.9rem;
+    }
 }
 
-/* === CORRIGE SUPERPOSICIÓN DEL HEADER === */
+
+/* === PRONÓSTICO DIARIO (7 DÍAS) === */
+.forecast-daily-section {
+    margin-top: 25px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    width: 100%;
+}
+
+.forecast-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 16px;
+    text-align: center;
+}
+
+.forecast-item {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 12px;
+    transition: transform 0.2s ease;
+}
+
+.forecast-item:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.forecast-day {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 6px;
+    text-transform: capitalize;
+}
+
+.forecast-icon {
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+}
+
+.forecast-temp {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+/* === CORRECCIÓN: Evitar línea vacía del buscador === */
+.suggestions-list:empty {
+    display: none;
+}
+
+.suggestions-list {
+    display: block;
+}
+
