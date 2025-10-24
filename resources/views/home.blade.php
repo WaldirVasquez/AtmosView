@@ -20,20 +20,20 @@
         <!-- Header -->
         <div class="header">
             <div class="location-info">
-                <h1>San Miguel</h1>
+                <h1>Obteniendo datos....</h1>
                 <div class="time-badge">
                     <span>🕐</span>
-                    <span>Jueves 16:00</span>
+                    <span>Obteniendo datos....</span>
                 </div>
                 <div class="description-badge">
                     <span>⚡</span>
-                    <span>Tormentas eléctricas poco intensas y lluvia</span>
+                    <span>Obteniendo datos....</span>
                 </div>
             </div>
             <div class="weather-main">
-                <div class="weather-icon">⛈️</div>
-                <div class="temperature">31°C</div>
-                <div class="condition">Tormentas eléctricas</div>
+                <div class="weather-icon">Obteniendo datos....</div>
+                <div class="temperature">Obteniendo datos....</div>
+                <div class="condition">Obteniendo datos....</div>
             </div>
         </div>
 
@@ -42,17 +42,17 @@
             <div class="detail-card">
                 <div class="detail-icon">💧</div>
                 <div class="detail-label">Humedad</div>
-                <div class="detail-value">74%</div>
+                <div class="detail-value">Obteniendo datos....</div>
             </div>
             <div class="detail-card">
                 <div class="detail-icon">🌧️</div>
                 <div class="detail-label">Precipitación</div>
-                <div class="detail-value">40%</div>
+                <div class="detail-value">Obteniendo datos....</div>
             </div>
             <div class="detail-card">
                 <div class="detail-icon">💨</div>
                 <div class="detail-label">Viento</div>
-                <div class="detail-value">3 km/h</div>
+                <div class="detail-value">Obteniendo datos....</div>
             </div>
         </div>
 

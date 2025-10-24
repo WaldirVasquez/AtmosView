@@ -424,40 +424,39 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
 });
 
 
-    // --- Botón para usar mi ubicación ---
-    document.getElementById("geoBtn").addEventListener("click", () => {
-        if (!navigator.geolocation)
-            return alert("Tu navegador no soporta geolocalización ❌");
+// --- Botón para usar mi ubicación ---
+document.getElementById("geoBtn").addEventListener("click", () => {
+    if (!navigator.geolocation)
+        return alert("Tu navegador no soporta geolocalización ❌");
 
-        navigator.geolocation.getCurrentPosition(
-            (pos) =>
-                getWeather(
-                    pos.coords.latitude,
-                    pos.coords.longitude,
-                    "Tu ubicación 📍"
-                ),
-            (err) => {
-                console.warn("Error geolocalización:", err);
-                getWeather(13.4833, -88.1833, "San Miguel");
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-    });
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            getWeather(pos.coords.latitude, pos.coords.longitude, "Tu ubicación 📍");
+        },
+        (err) => {
+            console.warn("Error de geolocalización:", err);
+            alert("No se pudo obtener tu ubicación. Activa el GPS o permite el acceso 🌎");
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+    );
+});
 
-    // --- Cargar clima inicial ---
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            (p) =>
-                getWeather(
-                    p.coords.latitude,
-                    p.coords.longitude,
-                    "Tu ubicación"
-                ),
-            () => getWeather(13.4833, -88.1833, "San Miguel")
-        );
-    } else {
-        getWeather(13.4833, -88.1833, "San Miguel");
-    }
+// --- Cargar clima inicial ---
+if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        (p) => {
+            getWeather(p.coords.latitude, p.coords.longitude, "Tu ubicación 📍");
+        },
+        (err) => {
+            console.warn("No se pudo obtener geolocalización:", err);
+            alert("Activa la ubicación para ver el clima de tu zona 🌎");
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+    );
+} else {
+    alert("Tu navegador no soporta geolocalización ❌");
+}
+
 
     // === Control de pestañas (usa los onclick del HTML) ===
     window.showTab = function (tabName) {
@@ -509,4 +508,3 @@ setInterval(() => {
 
 
 });
-
