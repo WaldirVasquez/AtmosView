@@ -14,24 +14,12 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
-/* === VARIABLES DE COLOR === */
+/* === CONTENEDOR GENERAL === */
 :root {
-    --bg-page: linear-gradient(135deg, #f5f5f5 0%, #eaeaea 100%);
-    --bg-card: rgba(255, 255, 255, 0.75);
-    --text-color: #111;
     --accent: #2563eb;
-    --secondary: #4b5563;
+
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg-page: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        --bg-card: rgba(45, 45, 45, 0.65);
-        --text-color: #f9fafb;
-        --accent: #3b82f6;
-        --secondary: #9ca3af;
-    }
-}
 
 /* === CONTENEDOR GENERAL === */
 .container {
@@ -141,8 +129,6 @@ body {
 .weather-card {
     background: var(--bg-card);
     border-radius: 20px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15),
-        0 10px 10px -5px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -158,6 +144,7 @@ body {
 .forecast-hourly-section {
     width: 100%;
     box-sizing: border-box;
+
 }
 
 /* === HEADER === */
@@ -481,6 +468,58 @@ body {
     }
 }
 
+/* === dianostico === */
+.diagnostic-card {
+    margin: 20px auto;
+    padding: 16px 22px;
+    max-width: 900px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    text-align: left;
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+.diagnostic-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+.diagnostic-card p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.diag-line {
+    margin: 5px 0;
+    padding: 6px 10px;
+    border-left: 2px solid rgba(255, 255, 255, 0.15);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.diag-line:first-child {
+    margin-top: 0;
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* === PRONÓSTICO DIARIO (7 DÍAS) === */
 .forecast-daily-section {
@@ -538,3 +577,355 @@ body {
     display: block;
 }
 
+
+.astro-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2rem;
+    flex-wrap: nowrap;
+    /* 🔥 así permanecen en fila */
+    margin-top: 2rem;
+}
+
+.astro-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 45%;
+    /* 🔥 ancho fijo proporcional */
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s;
+}
+
+.astro-card:hover {
+    transform: scale(1.02);
+}
+
+.astro-card h3 {
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.astro-info p {
+    margin: 0.4rem 0;
+    font-size: 0.95rem;
+}
+
+svg {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 1rem;
+}
+
+/* 🔽 Solo en móviles se apilan */
+@media (max-width: 768px) {
+    .astro-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .astro-card {
+        width: 90%;
+    }
+}
+
+.moon-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.moon-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.moon-visual img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(160, 180, 255, 0.4));
+}
+
+.moon-info {
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.moon-info p {
+    margin: 0.4rem 0;
+}
+
+@media (max-width: 768px) {
+    .moon-visual {
+        flex-direction: column;
+    }
+
+    .moon-info {
+        text-align: center;
+    }
+}
+
+
+
+.metrics-grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+    width: 100%;
+}
+
+@media (min-width: 700px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        justify-items: center;
+    }
+}
+
+@media (max-width: 699px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.metric-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    padding: 14px 18px;
+    width: 100%;
+    max-width: 330px;
+    height: 160px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+}
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metric-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.metric-card h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.metric-card p {
+    font-size: 0.85rem;
+    margin: 4px 0;
+}
+
+.metric-big-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.uv-bar {
+    width: 100%;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 4px 0;
+}
+
+#uv-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #2ecc71, #f1c40f, #e67e22, #e74c3c, #8e44ad);
+    transition: width 0.5s ease;
+}
+
+.metric-card.uv .metric-icon {
+    color: #f39c12;
+}
+
+.metric-card.dew .metric-icon {
+    color: #3498db;
+}
+
+.metric-card.vis .metric-icon {
+    color: #1abc9c;
+}
+
+.metric-card.pressure .metric-icon {
+    color: #9b59b6;
+}
+
+/* === Ajuste de separación entre secciones Astro y Métricas === */
+.astro-section {
+    margin-bottom: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+#extra-metrics {
+    margin-top: 10px !important;
+    /* antes 24px */
+    padding-top: 0;
+}
+
+/* Ajuste del grid para que las tarjetas queden más compactas entre sí */
+.metrics-grid {
+    display: grid;
+    gap: 12px;
+    /* antes 16px */
+    justify-content: center;
+    align-items: start;
+}
+
+@media (min-width: 700px) {
+    .metrics-grid {
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+        max-width: 700px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 699px) {
+    .metrics-grid {
+        grid-template-columns: 1fr;
+        width: 90%;
+        margin: 0 auto;
+    }
+}
+
+/* Ajuste fino del alto de cada tarjeta */
+.metric-card {
+    height: 150px;
+    padding: 12px 16px;
+}
+
+/* === Separación entre la sección Astro (Sol/Luna) y las métricas === */
+#extra-metrics {
+    margin-top: 35px !important;
+    /* antes 10px */
+    padding-top: 8px;
+}
+
+.astro-section {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* === SECCIÓN CLIMA ESPECIALIZADO === */
+.special-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin: 40px auto 60px;
+    max-width: 950px;
+    justify-content: center;
+}
+
+.special-card {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 18px 22px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: all 0.25s ease-in-out;
+}
+
+.special-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.special-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.special-icon {
+    width: 28px;
+    height: 28px;
+}
+
+.special-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.special-card p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* RESPONSIVE: en pantallas pequeñas una por fila */
+@media (max-width: 700px) {
+    .special-grid {
+        grid-template-columns: 1fr;
+        max-width: 95%;
+    }
+}
+
+
+/* === BORDES FINOS ENTRE SECCIONES === */
+.weather-card>.header,
+.weather-card>.details-grid,
+.weather-card>.variations-section,
+.weather-card>.forecast-hourly-section,
+.weather-card>.diagnostic-card,
+.weather-card>.forecast-daily-section {
+    border: 0.8px solid rgba(255, 255, 255, 0.12);
+    /* línea fina y elegante */
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    /* leve contraste para separarlas */
+    backdrop-filter: blur(6px);
+}
+
+/* Tema claro */
+.light-mode .weather-card>.header,
+.light-mode .weather-card>.details-grid,
+.light-mode .weather-card>.variations-section,
+.light-mode .weather-card>.forecast-hourly-section,
+.light-mode .weather-card>.diagnostic-card,
+.light-mode .weather-card>.forecast-daily-section {
+    border: 0.8px solid rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.special-card,
+.metric-card,
+.astro-card {
+    border: 0.8px solid var(--card-border);
+    /* línea fina */
+}
+
+:root {
+    --card-border: rgba(255, 255, 255, 0.18);
+    /* gris-blanco tenue */
+}
+
+.light-mode {
+    --card-border: rgba(0, 0, 0, 0.15);
+    /* gris oscuro tenue */
+}

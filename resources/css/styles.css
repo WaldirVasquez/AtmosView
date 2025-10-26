@@ -16,6 +16,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
     transition: background 0.4s, color 0.4s;
+    overflow-x: hidden;
 }
 
 /* === LOADER GLOBAL === */
@@ -31,6 +32,7 @@ body {
     z-index: 5000;
     opacity: 1;
     transition: opacity 0.8s ease;
+    overflow: hidden;
 }
 
 /* Loader circular tipo planeta */
@@ -89,17 +91,17 @@ body {
 
 /* ===== MODO CLARO ===== */
 .light-mode {
-    background: #f4f7fb;
+    background: #f1f1f1;
     color: #0a1628;
 }
 
 .light-mode .navbar {
-    background: #ffffff;
+    background: #f1f1f1;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .light-mode .footer {
-    background: #f0f0f0;
+    background: rgb(205, 205, 205);
     color: #222;
 }
 
@@ -107,7 +109,7 @@ body {
 .dark-mode {
     background: #121212;
     /* negro elegante */
-    color: #f4f7fb;
+    color: #f1f1f1;
 }
 
 .dark-mode .navbar {
@@ -117,7 +119,7 @@ body {
 
 .dark-mode .footer {
     background: #1b1b1b;
-    color: #ccc;
+    color: #f1f1f1;
 }
 
 /* ===== NAVBAR ===== */
@@ -429,15 +431,21 @@ body {
 }
 
 /* ===== FOOTER ===== */
+/* ===== FOOTER ===== */
 .footer {
-    text-align: center;
+    width: 100vw; /* ocupa TODO el viewport */
+    margin: 0;
     padding: 1.5rem 0;
-    width: 100vw; /* ocupa todo el ancho visible */
-    margin-left: calc(50% - 50vw); /* rompe el centrado del container */
+    background: #1b1b1b; /* fondo visible oscuro */
+    color: #ccc;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    transform: translateX(-50%); /* centra visualmente */
     box-sizing: border-box;
-    transition: background 0.4s, color 0.4s;
+    z-index: 10;
 }
-
 
 .footer hr {
     margin: 0.5rem auto;
@@ -497,3 +505,4 @@ body {
 .home-test p {
     opacity: 0.8;
 }
+
