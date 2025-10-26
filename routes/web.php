@@ -14,3 +14,6 @@ use App\Http\Controllers\{
 Route::get('/', function () {
     return view('home');
 })->name('home');
+
+//ruta para la vista radar
+Route::get('/radar', [RadarController::class, 'index'])->name('radar');

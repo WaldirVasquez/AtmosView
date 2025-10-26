@@ -7,7 +7,10 @@ export default defineConfig({
         laravel({
             input: ['resources/css/styles.css', 'resources/js/theme.js',
                     'resources/css/clima.css',
-                    'resources/js/clima.js'
+                    'resources/js/clima.js',
+                    'resources/css/radar.css',
+                    'resources/js/radar.js'
+                    
             ],
             refresh: true,
         }),

@@ -7,7 +7,7 @@
 
         <nav class="nav-menu" id="nav-menu">
             <a href="{{ route('home') }}"><i class="fa-solid fa-house"></i> Inicio</a>
-            <a href="#"><i class="fa-solid fa-satellite-dish"></i> Radar</a>
+            <a href="{{ route('radar') }}"><i class="fa-solid fa-satellite-dish"></i> Radar</a>
             <a href="#"><i class="fa-solid fa-globe"></i> Espacio</a>
             <div class="dropdown">
                 <button class="dropbtn">

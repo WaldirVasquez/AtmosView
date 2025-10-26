@@ -30,13 +30,7 @@
     
     @stack('scripts')
 
-    <script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Reemplaza todos los emojis del documento por sus versiones SVG
-            twemoji.parse(document.body, { folder: "svg", ext: ".svg" });
-        });
-    </script>
+
     
 
 
